@@ -45,3 +45,47 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid credentials")
         data['user'] = user
         return data
+
+
+from rest_framework import serializers
+from .models import GameMode
+
+class GameModeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GameMode
+        fields = ['id', 'user', 'mode', 'attempt', 'created_at', 'date', 'iq']  # add iq here
+        read_only_fields = ['id', 'created_at', 'user', 'date']
+
+
+
+from .models import GameQuestionRecord
+
+class GameQuestionRecordSerializer(serializers.ModelSerializer):
+    # Optional: show user and game_mode info in read-only fields
+    user = serializers.CharField(source='game_mode.user.username', read_only=True)
+    mode = serializers.CharField(source='game_mode.mode', read_only=True)
+    attempt = serializers.IntegerField(source='game_mode.attempt', read_only=True)
+    date = serializers.DateField(source='game_mode.date', read_only=True)
+    iq = serializers.FloatField(source='game_mode.iq', read_only=True)
+
+    class Meta:
+        model = GameQuestionRecord
+        fields = [
+            'id',
+            'game_mode',        
+            'user',             
+            'mode',             
+            'attempt',          
+            'date',             
+            'question_number',
+            'time',
+            'streak',
+            'user_answer',
+            'correct_answer',
+            'status',
+            'iq',
+        ]
+        extra_kwargs = {
+            'game_mode': {'required': True},
+            'question_number': {'required': False, 'allow_null': True}, 
+        }
